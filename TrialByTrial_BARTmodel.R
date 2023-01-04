@@ -47,6 +47,15 @@ library(glmmTMB)
 library(sjPlot)
 library (MuMIn)
 library(tidyr)
+library(gridExtra)
+library(parameters)
+library(gcookbook)
+library(performance)
+library(sjmisc)
+library(sjlabelled)
+library(bmlm) #perform within- and between-subject centering of variables in R. 
+library(dplyr) #perform within- and between-subject centering of variables in R. 
+
 
 #______________
 BARTtrial <- read_excel("D:/PhD_ATHenn/Pilot_Entscheidungsfindung/TrialBTrial_BART.xlsx") # note: path must be updated!
@@ -67,36 +76,41 @@ str(BARTtrial_neu)
     
     #______________
     #RECODE VARIABLES into factors, numeric, integer and rename new variables-> important for mixed model!
-    BARTtrial$ID <- factor(BARTtrial$ID) 
-    BARTtrial$BART_order <- factor(BARTtrial$BART_order) # (1) G-BART->L-BART; (2) L-BART->G-BART
-    BARTtrial$BART <- factor(BARTtrial$BART) 
-    BARTtrial$condition <- factor(BARTtrial$Reward) # low outcome magnitude condition (0) vs high outcome magnitude condition (1)
-    BARTtrial$Feedback <- factor(BARTtrial$Outcome) # burst balloon (0) vs whole balloon (1)
-    BARTtrial$Trial <- as.integer(BARTtrial$Trial) # trial 1-60 
-    BARTtrial$RT <- as.numeric (BARTtrial$RT) # latency time: Time the participant has waited until he / she has interrupted the inflation process
-    BARTtrial$SCRc <- as.numeric (BARTtrial$SCR_reward) # skin conductance response during the inflation process
-    BARTtrial$Sex <- factor(BARTtrial$Sex) # Gender of participants (female / male)
-
-    #______________
-    #z-transformation 
-    BARTtrial$Trial.z <- BARTtrial$Trial/sd(BARTtrial$Trial) # z-transformation of the trials
+        BARTtrial$ID <- factor(BARTtrial$ID) 
+        BARTtrial$BART_order <- factor(BARTtrial$BART_order) # (1) G-BART->L-BART; (2) L-BART->G-BART
+        BARTtrial$BART <- factor(BARTtrial$BART) 
+        BARTtrial$condition <- factor(BARTtrial$Reward) # low outcome magnitude condition (0) vs high outcome magnitude condition (1)
+        BARTtrial$Feedback <- factor(BARTtrial$Outcome) # burst balloon (0) vs whole balloon (1)
+        BARTtrial$Trial <- as.integer(BARTtrial$Trial) # trial 1-60 
+        BARTtrial$RT <- as.numeric (BARTtrial$RT) # latency time: Time the participant has waited until he / she has interrupted the inflation process
+        BARTtrial$SCRc <- as.numeric (BARTtrial$SCR_reward) # skin conductance response during the inflation process
+        BARTtrial$Sex <- factor(BARTtrial$Sex) # Gender of participants (female / male)
 
     #______________
     #Declare missing values as NA
-    BARTtrial$RT[BARTtrial$RT == 0]  <- NA 
-    BARTtrial$RT[BARTtrial$RT == -9999999]  <- NA 
-    
-    BARTtrial$SCRc[BARTtrial$SCRc == 0]  <- NA
-    BARTtrial$SCRc[BARTtrial$SCRc == -9999999]  <- NA 
-    
-    BARTtrial$BIS_sum[BARTtrial$BIS_sum == -99]  <- NA 
-    BARTtrial$BIS_sum[BARTtrial$BIS_sum == -9999999]  <- NA
+        BARTtrial$RT[BARTtrial$RT == 0]  <- NA 
+        BARTtrial$RT[BARTtrial$RT == -9999999]  <- NA 
+
+        BARTtrial$SCRc[BARTtrial$SCRc == 0]  <- NA
+        BARTtrial$SCRc[BARTtrial$SCRc == -9999999]  <- NA 
+
+        BARTtrial$BIS_sum[BARTtrial$BIS_sum == -99]  <- NA 
+        BARTtrial$BIS_sum[BARTtrial$BIS_sum == -9999999]  <- NA
+
+    #______________
+    #z-transformation 
+       BARTtrial$Trial.z <- BARTtrial$Trial/sd(BARTtrial$Trial) # z-transformation of the trials
+
+    #______________
+    #Zentieren:
+    BIS_sum.c <- scale(BARTtrial$BIS_sum, center = TRUE, scale = FALSE)
+    SPSRQr.c <- scale(BARTtrial$SPSRQr, center = TRUE, scale = FALSE)
+    SPSRQp.c <- scale(BARTtrial$SPSRQp, center = TRUE, scale = FALSE)    
     
     #______________
     #Delete NA / NaN from dataset --> for model comparisons when datasets do not match.
     BARTtrial_neu =na.omit(BARTtrial) 
     BARTtrial_neu
-    
     anyNA(BARTtrial_neu) # check whether the data set still contains NA / NaN: False -> no more in it, True -> still contain them
 
 
