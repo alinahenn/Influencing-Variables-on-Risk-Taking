@@ -192,172 +192,132 @@ str(BARTtrial_neu)
     
 ###NULL MODELS
 
-    #1. Null-Modell:  only one random intercept
-    mixed_null.1 = lmer(RT ~ 1 + (1|ID),REML = F, data=BARTtrial_neu)
-    summary(mixed_null.1)
-    
-    #2. Null-Modell
-    mixed_null.2 = lmer(RT ~ 1 + (1 + Trial.z | ID),REML = F, data=BARTtrial_neu)
-    summary(mixed_null.2)
-    anova(mixed_null.1, mixed_null.2) 
-    
-    #3. + BART order
-    mixed_null.3 = lmer(RT ~ 1 + (1 + Trial.z|ID) +(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial_neu)
-    summary(mixed_null.3)
-    anova(mixed_null.2, mixed_null.3) 
-    
-    #4 + SCRc
-    mixed_null.4 = lmer(RT ~ 1 + (1 + Trial.z*SCRc|ID) +(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial_neu)
-    summary(mixed_null.4)
-    anova(mixed_null.2, mixed_null.4) 
-        #--> final null model
+    nullmodel1 <- lmer( RT ~ 1 + (1|ID), data = BARTtrial_neu, REML=FALSE)
+    nullmodel2 <- lmer( RT ~ 1 + (1|ID) +(1|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel3 <- lmer( RT ~ 1 + (1|ID) +(1|Trial.z), data = BARTtrial_neu, REML=FALSE)
+    nullmodel4 <- lmer( RT ~ 1 + (1+Trial.z|ID), data = BARTtrial_neu, REML=FALSE)
+    nullmodel5 <- lmer( RT ~ 1 + (1+Trial.z|ID)+(1|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel6 <- lmer( RT ~ 1 + (1+Trial.z|ID)+(1+Trial.z|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel7 <- lmer( RT ~ 1 + (1+Trial.z*SCRc|ID), data = BARTtrial_neu, REML=FALSE)
+    nullmodel8 <- lmer( RT ~ 1 + (1+Trial.z*SCRc|ID)+(1|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel9 <- lmer( RT ~ 1 + (1+Trial.z*SCRc|ID)+(1+Trial.z|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel10 <- lmer( RT ~ 1 + (1+Trial.z+SCRc.z|ID), data = BARTtrial_neu, REML=FALSE)
+    nullmodel11 <- lmer( RT ~ 1 + (1+Trial.z+SCRc|ID)+(1|BART), data = BARTtrial_neu, REML=FALSE)
+    nullmodel12 <- lmer( RT ~ 1 + (1+Trial.z+SCRc|ID)+(1+Trial.z|BART) , data = BARTtrial_neu, REML=FALSE)
+
+    anova(nullmodel1, nullmodel2, nullmodel3, nullmodel4,nullmodel5, nullmodel6,nullmodel7,nullmodel8,nullmodel9,nullmodel10,nullmodel11, nullmodel12) 
+    #Final nullmodel: nullmodel11
+    # Results: see supplements; Figure S1.
+
 
 ###FIXED EFFECTS.
-
-#(1) + Context (BART [Loss-BART vs G-BART])
-    #1. + BART
-    mixed_m1neu = lmer(RT ~ BART + (1 + Trial.z |ID),REML = F, data=BARTtrial_neu)
-    mixed_m1 = lmer(RT ~ BART + (1 + Trial.z |ID),REML = F, data=BARTtrial)
-    summary(mixed_m1)
-    anova(mixed_null.2, mixed_m1)
-         
-#(2) +condition (outcome magnitude condition [low vs high])
-    #2.
-    mixed_m2 = lmer(RT ~ BART + condition + (1 + Trial.z |ID),REML = F, data=BARTtrial)
-    mixed_m2neu = lmer(RT ~ BART + condition + (1 + Trial.z |ID),REML = F, data=BARTtrial_neu) # needed for comparison with m4neu
-    summary(mixed_m2)
-    anova(mixed_m1,mixed_m2)
-
-    #3. 
-    mixed_m3 = lmer(RT ~ BART * condition + (1 + Trial.z |ID),REML = F, data=BARTtrial)
-    summary(mixed_m3)
-    anova(mixed_m2,mixed_m3) # -->mixed_m2 (not sig)
-       
-#(3) + SCR (skin conductance response during the inflation process)
-    #4.
-    mixed_m4 = lmer(RT ~ BART + condition + SCRc+(1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial) 
-    mixed_m4neu = lmer(RT ~ BART + condition + SCRc+(1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial_neu) # needed for comparison with m2neu
-    summary(mixed_m4)
-    anova(mixed_m4neu,mixed_m2neu)
-
-    #5. 
-    mixed_m5 = lmer(RT ~ BART * condition * SCRc + (1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial)
-    summary(mixed_m5)
-    anova(mixed_m4,mixed_m5) 
-
-    #6. 
-    mixed_m6 = lmer(RT ~ BART * SCRc + condition*SCRc +  (1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial)
-    summary(mixed_m6)
-    anova(mixed_m4,mixed_m6)
+mixed_a1 = lmer(RT ~ BART + BART_order +  BIS_sum  + SPSRQp + SPSRQr + condition + SCRc + Trial.z + Sex + Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a1,test="Chisq")
 
 
-#(4) + BART order (Order of whether participants first played G-BART and then L-BART, or the other way around)
-    #7
-    mixed_m7 = lmer(RT ~ BART + condition + SCRc+ BART_order +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m7)
-    anova(mixed_m7,mixed_m4)
-
-    #8
-    mixed_m8 = lmer(RT ~ BART*BART_order + condition + SCRc+(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    mixed_m8neu = lmer(RT ~ BART*BART_order + condition + SCRc+(1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial_neu) # needed for comparison with m12neu
-    summary(mixed_m8)
-    anova(mixed_m8,mixed_m4) 
-    
-    #9
-    mixed_m9 = lmer(RT ~ BART*BART_order + condition*BART_order + SCRc+(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m9)
-    anova(mixed_m8,mixed_m9)
-
-#(5) +Gender  
-    #10
-    mixed_m10 = lmer(RT ~ BART*BART_order + condition + SCRc+ Sex +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m10)
-    anova(mixed_m8,mixed_m10)      
-    
-    #11
-    mixed_m11 = lmer(RT ~ BART*BART_order + BART*Sex + condition*Sex + SCRc + (1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m11)
-    anova(mixed_m8,mixed_m11)
-
-    #--> as gender had no sig. additional effect over and above mixed_m8 the variable was not further included. 
+mixed_a2 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  + SPSRQr + condition + SCRc + Trial.z + Sex + 
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a2,test="Chisq")
 
 
-###questionnaires
-
-#(6) + BIS 11 (The Barratt Impulsiveness Scale)
-    #12
-    mixed_m12 = lmer(RT ~ BART*BART_order + BIS_sum + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    mixed_m12neu = lmer(RT ~ BART*BART_order + BIS_sum + condition + SCRc+(1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial_neu) # needed for comparison with m8neu
-    summary(mixed_m12)
-    anova(mixed_m8neu, mixed_m12neu) 
-    anova(mixed_m8, mixed_m12) 
-
-    #13
-    mixed_m13 = lmer(RT ~ BART*BART_order + BART*BIS_sum + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    mixed_m13neu = lmer(RT ~ BART*BART_order + BART*BIS_sum + condition + SCRc+(1 + Trial.z*SCRc |ID),REML = F, data=BARTtrial_neu)
-    summary(mixed_m13neu)
-    summary(mixed_m13)
-    anova(mixed_m8neu, mixed_m13neu) 
-    anova(mixed_m8, mixed_m13)
-
-    #14
-    mixed_m14 = lmer(RT ~ BART*BART_order + BIS_sum * condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m14)
-    anova(mixed_m13, mixed_m14) 
+mixed_a3 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + SPSRQp  + SPSRQr + condition + SCRc + Trial.z + Sex+
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a3,test="Chisq")
 
 
-#(7) SPSRQ (SP and SR sub scales at once)
-    ##15
-    mixed_m15 = lmer(RT ~ BART*BART_order + BART*BIS_sum  + SPSRQp + SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m15)
-    anova(mixed_m13, mixed_m15)
-
-    #16
-    mixed_m16 = lmer(RT ~ BART*BART_order + BART*BIS_sum  + BART*SPSRQp + BART*SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m16)
-    anova(mixed_m13, mixed_m16)
-    
-    #17
-    mixed_m17 = lmer(RT ~ BART*BART_order + BART*BIS_sum  + BART *SPSRQp * SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m17)
-    anova(mixed_m16, mixed_m17)
+mixed_a4 = lmer(RT ~ BART*BART_order +  BIS_sum  + BART* SPSRQp  + SPSRQr + condition + SCRc + Trial.z + Sex+Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1 | BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a4,test="Chisq")
 
 
-#(8) SPSRQ (SP andS SR sub scales one after the other)
-  #(8a) +SPSRQ reward (SR)
-    #18
-    mixed_m18 = lmer(RT ~ BART*BART_order + BART*BIS_sum  + SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m18)
-    anova(mixed_m13, mixed_m18) 
-    
-    #19
-    mixed_m19 = lmer(RT ~ BART*BART_order + BART*BIS_sum + BART*SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m19)
-    anova(mixed_m13, mixed_m19)
+mixed_a5 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  + BART* SPSRQr + condition + SCRc + Trial.z + Sex + Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a5,test="Chisq")
 
-    #20
-    mixed_m20 = lmer(RT ~ BART*BART_order + BART*BIS_sum  * SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m17)
-    anova(mixed_m19, mixed_m20)
 
-  #(8b) SPSRQ punishment (SP)
+mixed_a6 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  + SPSRQr + condition*BART + SCRc + Trial.z + Sex + Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a6,test="Chisq")
 
-    #21
-    mixed_m21 = lmer(RT ~ BART*BART_order + BART*BIS_sum  * SPSRQr + condition + SCRc + SPSRQp  +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m21)
-    anova(mixed_m20, mixed_m21)
-    
-    #22
-    mixed_m22 = lmer(RT ~ BART*BART_order + BART*BIS_sum  * SPSRQr + condition + SCRc + SPSRQp*BART +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m22)
-    anova(mixed_m20, mixed_m22) 
-    
-    #23
-    mixed_m23 = lmer(RT ~ BART*BART_order + BART*BIS_sum  * SPSRQr+ BART*BIS_sum  *SPSRQp + condition + SCRc  +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
-    summary(mixed_m23)
-    anova(mixed_m20, mixed_m23)
-    
 
-anova(mixed_m17, mixed_m23)
-    #--> Final model:
-    mixed_m17 = lmer(RT ~ BART*BART_order + BART*BIS_sum  + BART *SPSRQp * SPSRQr + condition + SCRc +(1 + Trial.z*SCRc |ID)+(1 + Trial.z|ID:BART_order),REML = F, data=BARTtrial)
+mixed_a7 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  +  SPSRQr + condition + BART* SCRc + Trial.z + Sex + Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a7,test="Chisq")
+
+
+mixed_a8 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  +  SPSRQr + condition + SCRc + BART*Trial.z + Sex + Age+ 
+                  (1+ Trial.z+SCRc|ID)+(1|BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a8,test="Chisq")
+
+
+mixed_a9 = lmer(RT ~ BART*BART_order +  BIS_sum  + SPSRQp  +  SPSRQr + condition + SCRc + Trial.z + BART*Sex+ Age+  
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a9,test="Chisq")
+
+
+mixed_a10 = lmer(RT ~ BART * BART_order +  BIS_sum  + SPSRQp + SPSRQr + condition + SCRc + Trial.z + Sex + Age*BART+  
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a10,test="Chisq")
+
+
+mixed_a11 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp * SPSRQr + condition + SCRc + Trial.z + Sex + Age+  
+                  (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a11,test="Chisq")
+
+
+mixed_a12 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + condition + SCRc + Trial.z + Sex + Age+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a12,test="Chisq")
+
+
+mixed_a13 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + BART*condition + SCRc + Trial.z + Sex +Age+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a13,test="Chisq")
+
+
+mixed_a14 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + BART*condition + SCRc*BART + Trial.z + Sex + Age+ 
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a14,test="Chisq")
+
+
+mixed_a15 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + BART*condition + SCRc*BART + Trial.z*BART + Sex + Age+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a15,test="Chisq")
+
+
+mixed_a16 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + BART*condition + SCRc*BART + Trial.z*BART + Sex*BART +Age+  
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a16,test="Chisq")
+
+
+mixed_a17 = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp + BART* SPSRQr + BART*condition + SCRc*BART +Trial.z*BART + Sex*BART +Age*BART+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a17,test="Chisq")
+
+
+mixed_a18 = lmer(RT ~ BART + BART_order +  BIS_sum  + SPSRQp + SPSRQr + condition *Trial.z + SCRc + Sex + Age+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a18,test="Chisq")
+
+
+mixed_a19 = lmer(RT ~ BART + BART_order +  BIS_sum  + SPSRQp + SPSRQr + condition + Trial.z * SCRc + Sex + Age+
+                 (1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial_neu, REML=FALSE)
+  drop1(mixed_a19,test="Chisq")
+
+
+anova(mixed_a1,mixed_a2,mixed_a3,mixed_a4,mixed_a5,mixed_a6,mixed_a7,mixed_a8, mixed_a9,mixed_a10,
+      mixed_a11,mixed_a12,mixed_a13,mixed_a14,mixed_a15, mixed_a16, mixed_a17,mixed_a18,mixed_a19)
+
+##DROP
+drop1(mixed_a11,test="Chisq")
+
+mixed_a11drop = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp * SPSRQr + condition + SCRc + Trial.z  +
+                       (1+ Trial.z+SCRc|ID)+(1 + Trial.z|BART_order), data = BARTtrial, REML=FALSE )
+
+  
+#MODELL nach drop
+mixed_a11drop = lmer(RT ~ BART*BART_order +  BART*BIS_sum  + BART *SPSRQp * SPSRQr + condition + SCRc + Trial.z +(1+ Trial.z+SCRc|ID)+(1 |BART), data = BARTtrial, REML=FALSE )
+summary(mixed_a11drop)
+
+
