@@ -13,7 +13,8 @@ Philippa Hüpen, Sara Boccadoro, Laura Ritter, Theodore D. Satterthwaite, Lisa W
 January 2020
 
 ## Current Project Status
-:arrow_right: Paper entitled "Context Effects, Skin Conductance Responses and Personality Traits - Influencing Variables on Risk-Taking within a Modified Version of the Balloon Analog Risk Task." under review at [*Biological Psychology.*](https://www.sciencedirect.com/journal/biological-psychology), Nov, 2022
+:arrow_right: Henn, A. T., Hüpen, P., Boccadoro, S., Ritter, L., Satterthwaite, T. D., Wagels, L., & Habel, U. (2023). Context effects, skin conductance responses and personality traits–Influencing variables on risk-taking within a modified version of the balloon analog risk task. Biological psychology, 177, 108498.
+
 
 ## Datasets
 1. Matlab code for preprocessing of BART and SCR data
