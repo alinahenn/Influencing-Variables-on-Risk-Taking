@@ -3,26 +3,6 @@
 #Status: 08.09.2021
 
 
-#______________
-#INSTALL LIBARIES
-# install.packages('lme4')
-# install.packages('interactions')
-# install.packages('haven')
-# install.packages('lmerTest')
-# install.packages('texreg')
-# install.packages('sjstats')
-# install.packages('Matrix')
-# install.packages('car')
-# install.packages('ggplot2')
-# install.packages('HLMdiag')
-# install.packages('DHARMa')
-# install.packages('lattice')
-# install.packages('effects')
-# install.packages('robustlmm')
-# install.packages('sjPlot')
-# install.packages('MuMIn')
-# install.packages('Tidyr')
-# install.packages('readxl')
 
 #______________
 #LIBARIES NEEDED
@@ -58,7 +38,7 @@ library(dplyr) #perform within- and between-subject centering of variables in R.
 
 
 #______________
-BARTtrial <- read_excel("D:/PhD_ATHenn/Pilot_Entscheidungsfindung/TrialBTrial_BART.xlsx") # note: path must be updated!
+BARTtrial <- read_excel("xxx....TrialBTrial_BART.xlsx") # note: path must be updated!
 
 #______________
 #VIEW DATA
